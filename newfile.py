@@ -1,69 +1,67 @@
+from telethon import TelegramClient, events
 import requests
-import webbrowser
+from datetime import datetime
 import re
+import pytz
+
+IST = pytz.timezone('Asia/Kolkata')
+raw_TS = datetime.now(IST)
+curr_date = raw_TS.strftime("%d-%m-%Y")
+curr_time = raw_TS.strftime("%H:%M:%S")
+
+def messageParse(msg):
+    a2 = msg.replace("&","&amp")
+    return a2
 
 def change(url):
-    #print(url)
     y = url.find("tag")
     z = url[0:y]
     f = z + "tag=mpjani-21"
     return f
-#add an input flield of chat id here  and take chat id from json file
-base_url = "https://api.telegram.org/bot6319772181:AAG3WXTSrsC3Zpraxl2HdKk9ZZEqJBv3BmE"
 
+def send_mes(message):
+    chatid="@abcd9925"
+    message_1 = messageParse(message)
+    params = {
+        "chat_id": chatid,
+        "text": message_1,
+        "parse_mode": "HTML",
+    }
+    telegram_api = f"https://api.telegram.org/bot6489447040:AAE0DuiALHjvNvXjbb2Hb6rJt66udNj5yjI/sendMessage"
+    tel_resp = requests.get(telegram_api,params=params)
+    a = "null"
+    print("message sent")
+i=1
 
-# def read_msg():
+base_url = "https://api.telegram.org/bot6489447040:AAE0DuiALHjvNvXjbb2Hb6rJt66udNj5yjI"
 parameter = {
-    "offset": "482396017"
-}
+        "offset": "482396017"
+ }
 resp = requests.get(base_url + "/getUpdates", data=parameter)
 data = resp.json()
-print(data)
 for result in data["result"]:
-    if "message" in result and "text" in result["message"] and "id" in result["message"]["chat"] and "chat" in result["message"]:
-        x = result["message"]["text"]
-        t = result["message"]["chat"]["id"]
-        url = re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[^\(\), ][ (?:%[0-9a-fA-F][0-9a-fA-F])+', x)
-
-#print(t)
-#print(s)
+    if "message" in result and "text" in result["message"]:
+            x = result["message"]["text"]
+            url = re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[^\(\), ][ (?:%[0-9a-fA-F][0-9a-fA-F])+', x)
 if not url:
-    None
+        None
 else:
-    c = " ".join(url)
-    print(c)
-    s = x.find("https://")
-    o = x[0:s]
-    #print(url)
-    #print(o)
+        c = " ".join(url)
+        s = x.find("https://")
+        o = x[0:s]
+        if 'tag' in c:
+            a = change(c)
+        else:
+            for z in url:
+                r = requests.get(z,allow_redirects=False)
+            try:
+                y = r.headers['location']
+                a = change(y)
+            except KeyError:
+                print(url, "page not available")
 
-    if 'tag' in c:
-        a = change(c)
-    #print(a)
-    else:
-        for z in url:
-            r = requests.get(z, allow_redirects=False)
-        try:
-            y = r.headers['location']
-            a = change(y)
-        except KeyError:
-            print(url, "page not available")
-
-
-    q = {o,a}
-
-    
-        
-
-
-def send_msg(chat_id,text):
-    params = {
-        "chat_id":chat_id,
-        "text":text
-     }
-    response = requests.post(base_url +"/sendMessage",params)
-    
-#for i in q:
-#    print("fjwofi"+i)
-
-send_msg(-1001953949660,o+a)
+msg = o+a
+   
+   
+  #tag change and send 
+send_mes(msg)
